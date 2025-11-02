@@ -1,5 +1,5 @@
 import type { Point } from './interface/point'
-import type { Rect } from './interface/rect'
+import drawRect from './scripts/drawRect'
 
 import getMousePosInCanvas from './scripts/getMousePosInCanvas';
 import normalizeRect from './scripts/normalizeRect'
@@ -58,20 +58,13 @@ canvas.addEventListener('pointerup', (e: PointerEvent) => {
 
 
 // Utility to create a Rect from two Points
-function drawRect(rect: Rect) {
-  if(currentPosition === null || startPosition === null) return;
 
-  ctx.strokeStyle = 'blue';
-  ctx.lineWidth = 2;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-}
 
 // Animation loop, might use for  more complex stuff later
 function update() {
   if (isSelecting && startPosition && currentPosition) {
     const rect = normalizeRect(startPosition, currentPosition);
-    drawRect(rect);
+    drawRect(currentPosition, startPosition, rect, canvas, ctx);
   }
 
   requestAnimationFrame(update);
