@@ -1,6 +1,9 @@
 import type { Point } from './interface/point'
 import type { Rect } from './interface/rect'
+
 import getMousePosInCanvas from './scripts/getMousePosInCanvas';
+import resizeCanvas from './scripts/resizeCanvas';
+
 import './style.css';
 
 // Get app container
@@ -26,19 +29,11 @@ let startPosition: Point | null = null;
 let endPosition: Point | null = null;
 let currentPosition: Point | null = null;
 
-// Resize canvas to fit its CSS size and device pixel ratio
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width  = Math.max(1, Math.floor(rect.width  * dpr));
-  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
 
 // Event Listeners
 // TODO: Add to helpers/utils file instead of main
-window.addEventListener('resize', resizeCanvas, { passive: true });
+window.addEventListener('resize', () => resizeCanvas(canvas, ctx), { passive: true });
 
 // get start position on pointer down
 canvas.addEventListener('pointerdown', (e: PointerEvent) => {
@@ -92,4 +87,4 @@ function update() {
 
 // main loop
 update();
-resizeCanvas();
+resizeCanvas(canvas, ctx);
