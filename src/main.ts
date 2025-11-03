@@ -2,7 +2,6 @@ import config from './config'
 import type { Point } from './interface/point'
 import type { Rect } from './interface/rect'
 import march from './scripts/animateAnts'
-import drawRect from './scripts/drawRect'
 
 import getMousePosInCanvas from './scripts/getMousePosInCanvas';
 import normalizeRect from './scripts/normalizeRect'
@@ -68,6 +67,24 @@ window.addEventListener('keydown', (e) => {
     currentPosition = null;
     finalSelection = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+});
+
+// check if mouse is inside rect after finilizing selection
+canvas.addEventListener('click', (e) => {
+  if (!finalSelection) return;
+  const mousePos = getMousePosInCanvas(canvas, e);
+  if (
+    mousePos.x >= finalSelection.x &&
+    mousePos.x <= finalSelection.x + finalSelection.width &&
+    mousePos.y >= finalSelection.y &&
+    mousePos.y <= finalSelection.y + finalSelection.height
+  ) {
+    canvas.style.cursor = 'pointer';
+    console.log('Clicked inside selection rectangle');
+  } else {
+    canvas.style.cursor = 'default';
+    console.log('Clicked outside selection rectangle');
   }
 });
 
