@@ -60,6 +60,18 @@ canvas.addEventListener('pointerup', (e) => {
 // when pointerup, finalize the selection rectangle, so we can keep animating it
 let finalSelection: Rect | null = null;
 
+// keyboard listener to clear selection on Escape
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    startPosition = null;
+    endPosition = null;
+    currentPosition = null;
+    finalSelection = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+});
+
+
 function update() {
   const now = performance.now();
   const dt  = (now - lastTime) / 1000;
