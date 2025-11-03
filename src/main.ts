@@ -1,10 +1,12 @@
+import config from './config'
 import type { Point } from './interface/point'
+import type { Rect } from './interface/rect'
+import march from './scripts/animateAnts'
 import drawRect from './scripts/drawRect'
 
 import getMousePosInCanvas from './scripts/getMousePosInCanvas';
 import normalizeRect from './scripts/normalizeRect'
 import resizeCanvas from './scripts/resizeCanvas';
-
 import './style.css';
 
 // Get app container
@@ -19,7 +21,6 @@ app.innerHTML = `
   </div>
 `;
 
-
 // Get canvas and context
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const ctx = canvas.getContext('2d')!;
@@ -29,8 +30,8 @@ let isSelecting = false;
 let startPosition: Point | null = null;
 let endPosition: Point | null = null;
 let currentPosition: Point | null = null;
-
-
+let offset = 0;
+let lastTime = performance.now();
 
 // Event Listeners
 // TODO: Add to helpers/utils file instead of main
@@ -49,27 +50,36 @@ canvas.addEventListener('pointermove', (e: PointerEvent) => {
 });
 
 // get end position on pointer up
-canvas.addEventListener('pointerup', (e: PointerEvent) => {
+canvas.addEventListener('pointerup', (e) => {
   canvas.releasePointerCapture(e.pointerId);
   endPosition = currentPosition;
+  if (startPosition && endPosition) finalSelection = normalizeRect(startPosition, endPosition);
   isSelecting = false;
 });
 
+// when pointerup, finalize the selection rectangle, so we can keep animating it
+let finalSelection: Rect | null = null;
 
-
-// Utility to create a Rect from two Points
-
-
-// Animation loop, might use for  more complex stuff later
 function update() {
+  const now = performance.now();
+  const dt  = (now - lastTime) / 1000;
+  lastTime  = now;
+
+  const speed   = config.antSpeed;
+  const pattern = config.antLength + config.antSpacing;
+  offset = (offset + speed * dt) % pattern;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   if (isSelecting && startPosition && currentPosition) {
     const rect = normalizeRect(startPosition, currentPosition);
-    drawRect(currentPosition, startPosition, rect, canvas, ctx);
+    march(canvas, ctx, offset, rect, config);
+  } else if (finalSelection) {
+    march(canvas, ctx, offset, finalSelection, config);
   }
 
   requestAnimationFrame(update);
 }
-
 // main loop
 update();
 resizeCanvas(canvas, ctx);
