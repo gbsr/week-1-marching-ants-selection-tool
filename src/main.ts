@@ -1,13 +1,13 @@
-import { state } from './helpers/state'
+import { state } from './state/state'
 
-import registerEvents from './helpers/events'
+import registerEvents from './utils/events'
+import asserts from './utils/asserts'
+import normalizeRect from './utils/normalizeRect'
+import resizeCanvas from './system/resizeCanvas';
+import march from './render/animateAnts'
 import config from './config'
-import normalizeRect from './scripts/normalizeRect'
-import resizeCanvas from './scripts/resizeCanvas';
-import march from './scripts/animateAnts'
 
 import './style.css';
-import type { Rect } from './interface/rect'
 
 // Main Setup
   // Get app container
@@ -28,6 +28,7 @@ app.innerHTML = `
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const ctx = canvas.getContext('2d')!;
 
+// register event listeners
 registerEvents(canvas, ctx, state);
 
 
@@ -44,6 +45,7 @@ function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (state.mode === 'select' && state.startPosition && state.currentPosition) {
+    asserts(state);
     const rect = normalizeRect(state.startPosition, state.currentPosition);
     march(canvas, ctx, offset, rect, config);
   } else if (state.finalSelection) {

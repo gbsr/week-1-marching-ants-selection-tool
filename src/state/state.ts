@@ -7,6 +7,7 @@ export interface SelectionState {
   currentPosition: Point | null;
   endPosition: Point | null;
   finalSelection: Rect | null;
+  dragOffset: { x: number; y: number } | null
 }
 
 export const state: SelectionState = {
@@ -14,5 +15,6 @@ export const state: SelectionState = {
   startPosition: null,
   currentPosition: null,
   endPosition: null,
-  finalSelection: null
+  finalSelection: null,
+  dragOffset: null,
 };
