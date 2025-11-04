@@ -1,12 +1,20 @@
-import type { Point } from "../interface/point"
-import type { Rect } from "../interface/rect"
-import getMousePosInCanvas from "./pointer"
-import resizeCanvas from "../system/resizeCanvas"
-import finalizeSelect from "../actions/finalizeSelect"
-import type { SelectionState } from "../state/state"
 import asserts from "./asserts"
+import getMousePosInCanvas from "./pointer"
+import finalizeSelect from "../actions/finalizeSelect"
 
-export default function registerEvents(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, state: SelectionState) {
+import { pointInsideRect } from "./geometry"
+import type { SelectionState } from "../state/state"
+
+export default function registerEvents(
+  canvas: HTMLCanvasElement, 
+  ctx: CanvasRenderingContext2D, 
+  state: SelectionState) {
+
+    // edge cases
+    canvas.addEventListener('pointercancel', () => { state.mode='idle'; state.dragOffset=null; });
+    canvas.addEventListener('lostpointercapture', () => { state.mode='idle'; state.dragOffset=null; });
+    canvas.style.touchAction = 'none';
+
 
   // clear selection on Escape key press
   window.addEventListener('keydown', e => {
@@ -16,109 +24,77 @@ export default function registerEvents(canvas: HTMLCanvasElement, ctx: CanvasRen
       state.currentPosition = null;
       state.endPosition = null;
       state.finalSelection = null;
+      state.dragOffset = null;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    asserts(state);
   });
   
   // get start position on pointer down
   canvas.addEventListener('pointerdown', (e: PointerEvent) => {
-    
-    // If there's a final selection, check if the pointer is inside it
+
+    asserts('on pointerdown: ', state);
+
+    canvas.setPointerCapture(e.pointerId);
     const mouse = getMousePosInCanvas(canvas, e);
     
+    // move
+    if (state.finalSelection && pointInsideRect(mouse, state.finalSelection)) {
+      state.mode = 'move';
+      state.dragOffset = {
+        x: mouse.x - state.finalSelection.x,
+        y: mouse.y - state.finalSelection.y
+      };
+      asserts('after setting move mode: ', state);
+      console.log('Entering move mode');
+      return;
+    }   
 
-    if (state.finalSelection) {
-      const inside = pointInsideRect(mouse, state.finalSelection);
-      asserts(state);
+    // select
+    state.mode = 'select';
+    state.startPosition = mouse;
+    state.currentPosition = mouse;
+    state.finalSelection = null;
+    asserts('after setting select mode: ', state);
+    console.log('Entering select mode');
+  });
 
-      if (inside) {
-    
-        state.mode = 'move';
-        asserts(state);
-
-        // not inside final selection
-      } else {
-        state.mode = 'select';
-        state.startPosition = getMousePosInCanvas(canvas, e);
-        state.finalSelection = null; // Clear previous selection
-        asserts(state);
-      }
-    }
-
-canvas.setPointerCapture(e.pointerId);
-state.startPosition = getMousePosInCanvas(canvas, e);
-});
 
 // Update current position on pointer move
 canvas.addEventListener('pointermove', (e: PointerEvent) => {
-  if(!state.finalSelection) return;
 
-  let dragOffsetX = getMousePosInCanvas(canvas, e).x - state.finalSelection.x;
-  let dragOffsetY = getMousePosInCanvas(canvas, e).y - state.finalSelection.y;
-  if( state.mode === 'move' && state.finalSelection) {
-    state.finalSelection.x = getMousePosInCanvas(canvas, e).x - dragOffsetX;
-    state.finalSelection.y = getMousePosInCanvas(canvas, e).y - dragOffsetY;
-    asserts(state);
-    return;
+    const mouse = getMousePosInCanvas(canvas, e);
+
+    if(state.mode === 'select') {
+    state.currentPosition = mouse;
+    asserts('during select pointermove: ', state);
   }
-  
-  state.currentPosition = getMousePosInCanvas(canvas, e);
+  else if (state.mode === 'move' && state.finalSelection && state.dragOffset) {
+    state.finalSelection.x = mouse.x - state.dragOffset.x;
+    state.finalSelection.y = mouse.y - state.dragOffset.y;
+    asserts('during move pointermove: ', state);
+  }
+  // if mode is idle, do nothing  
 });
 
 // get end position on pointer up
 canvas.addEventListener('pointerup', (e) => {
-  canvas.releasePointerCapture(e.pointerId);
 
+  canvas.releasePointerCapture(e.pointerId);
   const mouse = getMousePosInCanvas(canvas, e);
 
   if(state.mode === 'select') {
     finalizeSelect(state, mouse);
-  asserts(state);
+    asserts('after finalizeSelect: ', state);
   }
 
-  if(state.mode === 'move') {
-    asserts(state);
-    // move here
-  }
-});
-
-
+  if (state.mode === 'move') {
     state.mode = 'idle';
-
-canvas.addEventListener('click', (e) => {
-  if (!state.finalSelection) return;
-
-  const mousePos = getMousePosInCanvas(canvas, e);
-  if (
-    mousePos.x >= state.finalSelection.x &&
-    mousePos.x <= state.finalSelection.x + state.finalSelection.width &&
-    mousePos.y >= state.finalSelection.y &&
-    mousePos.y <= state.finalSelection.y + state.finalSelection.height
-
-   && state.mode === 'idle') {
-    canvas.style.cursor = 'pointer';
-    state.mode = 'move';
-    asserts(state);
-  } else {
-    canvas.style.cursor = 'default';
-    asserts(state);
+    state.dragOffset = null;
+    console.log('Exiting move mode');
+    asserts('after exiting move mode: ', state);
   }
+
 });
 
-  // resize canvas on window resize
-window.addEventListener('resize', () => resizeCanvas(canvas, ctx), { passive: true });
-
-}
-
-function pointInsideRect(mouse: Point, finalSelection: Rect) {
-  return (
-    mouse.x >= finalSelection.x &&
-    mouse.x <= finalSelection.x + finalSelection.width &&
-    mouse.y >= finalSelection.y &&
-    mouse.y <= finalSelection.y + finalSelection.height
-  );
-}
-
-
-
+  };
+  

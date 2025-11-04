@@ -3,6 +3,7 @@ import normalizeRect from "../utils/normalizeRect"
 import type { SelectionState } from "../state/state"
 
 export default function finalizeSelect(state: SelectionState, mouse: Point) {
+  if (!state.startPosition) return;
 
   state.currentPosition = mouse;
   if (state.startPosition && state.currentPosition) {
@@ -10,8 +11,9 @@ export default function finalizeSelect(state: SelectionState, mouse: Point) {
   }
 
   // transition state machine, then clean up
-  state.mode = 'idle';
   state.startPosition = null;
+  state.currentPosition = null;
   state.endPosition = null;
+  state.mode = 'idle';
 
 }
