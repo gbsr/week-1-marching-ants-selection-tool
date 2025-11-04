@@ -7,7 +7,6 @@ import march from './render/animateAnts'
 import config from './config'
 
 import './style.css';
-import asserts from './utils/asserts'
 
 // Main Setup
   // Get app container

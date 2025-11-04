@@ -1,8 +1,8 @@
 import asserts from "./asserts"
-import getMousePosInCanvas from "./pointer"
+import getMousePosInCanvas, { setPointerCursor } from "./pointer"
 import finalizeSelect from "../actions/finalizeSelect"
 
-import { pointInsideRect } from "./geometry"
+import { hitEdge, pointInsideRect } from "./geometry"
 import type { SelectionState } from "../state/state"
 
 export default function registerEvents(
@@ -64,6 +64,23 @@ canvas.addEventListener('pointermove', (e: PointerEvent) => {
 
     const mouse = getMousePosInCanvas(canvas, e);
 
+    // TODO: refactor + improve logic, base for now
+    const checkEdge = hitEdge(mouse, state.finalSelection!);
+
+    if (checkEdge.top) {
+      setPointerCursor('ns-resize', canvas);
+    }
+    if (checkEdge.bottom) {
+      setPointerCursor('ns-resize', canvas);
+    }
+    if (checkEdge.left) {
+      setPointerCursor('ew-resize', canvas);
+      console.log('Mouse is at the left edge');
+    }
+    if (checkEdge.right) {
+      console.log('Mouse is at the right edge');
+    }
+
     if(state.mode === 'select') {
     state.currentPosition = mouse;
     asserts('during select pointermove: ', state);
@@ -82,19 +99,19 @@ canvas.addEventListener('pointerup', (e) => {
   canvas.releasePointerCapture(e.pointerId);
   const mouse = getMousePosInCanvas(canvas, e);
 
-  if(state.mode === 'select') {
-    finalizeSelect(state, mouse);
-    asserts('after finalizeSelect: ', state);
-  }
+    if(state.mode === 'select') {
+      finalizeSelect(state, mouse);
+      asserts('after finalizeSelect: ', state);
+    }
 
-  if (state.mode === 'move') {
-    state.mode = 'idle';
-    state.dragOffset = null;
-    console.log('Exiting move mode');
-    asserts('after exiting move mode: ', state);
-  }
+    if (state.mode === 'move') {
+      state.mode = 'idle';
+      state.dragOffset = null;
+      console.log('Exiting move mode');
+      asserts('after exiting move mode: ', state);
+    }
 
-});
+  });
 
-  };
+};
   
