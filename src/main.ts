@@ -1,13 +1,13 @@
 import { state } from './state/state'
 
 import registerEvents from './utils/events'
-import asserts from './utils/asserts'
 import normalizeRect from './utils/normalizeRect'
 import resizeCanvas from './system/resizeCanvas';
 import march from './render/animateAnts'
 import config from './config'
 
 import './style.css';
+import asserts from './utils/asserts'
 
 // Main Setup
   // Get app container
@@ -44,17 +44,18 @@ function update() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (state.mode === 'select' && state.startPosition && state.currentPosition) {
-    asserts(state);
-    const rect = normalizeRect(state.startPosition, state.currentPosition);
-    march(canvas, ctx, offset, rect, config);
-  } else if (state.finalSelection) {
-    march(canvas, ctx, offset, state.finalSelection, config);
+    // draw current selection (preview)
+    if (state.startPosition && state.currentPosition && !state.finalSelection) {
+      const rect = normalizeRect(state.startPosition, state.currentPosition);
+      march(canvas, ctx, offset, rect, config);
+    }
+    // draw finalized selection (idle or move)
+    else if (state.finalSelection) {
+      march(canvas, ctx, offset, state.finalSelection, config);
   }
-  // console.log({ 'mode switched: ': mode });
-
   requestAnimationFrame(update);
 }
+
 // main loop
 update();
 resizeCanvas(canvas, ctx);
