@@ -42,12 +42,24 @@ export default function registerEvents(
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Shift') {
+      state.isShiftPressed = true;
+    }
+  });
+
+  window.addEventListener('keyup', e => {
+  if (e.key === 'Shift') state.isShiftPressed = false;
+});
   
   // get start position on pointer down
   canvas.addEventListener('pointerdown', (e: PointerEvent) => {
     canvas.setPointerCapture(e.pointerId);
     const mouse = getMousePosInCanvas(canvas, e);
     asserts('on pointerdown: ', state);
+
+    if (e.shiftKey) state.isShiftPressed = true;
 
     // resize start
     if (state.finalSelection) {
@@ -57,6 +69,22 @@ export default function registerEvents(
         state.resizeHandle = handle;
         return;
       }
+    }
+
+    if (e.shiftKey) {
+      state.isShiftPressed = true;
+    }
+
+    // shift for square selection
+    if (state.isShiftPressed && state.startPosition) {
+      const size = Math.min(
+        Math.abs(state.startPosition.x - mouse.x),
+        Math.abs(state.startPosition.y - mouse.y)
+      );
+      state.currentPosition = {
+        x: state.startPosition.x + size * (mouse.x < state.startPosition.x ? -1 : 1),
+        y: state.startPosition.y + size * (mouse.y < state.startPosition.y ? -1 : 1)
+      };
     }
 
     // move
@@ -100,7 +128,7 @@ export default function registerEvents(
 
     // resize
     if (state.mode === "resize" && state.finalSelection && state.resizeHandle) {
-      resizeRect(state.finalSelection, mouse, state.resizeHandle);
+      resizeRect(state.finalSelection, mouse, state.resizeHandle, state.isShiftPressed);
       return;
     }
 
@@ -144,46 +172,55 @@ export default function registerEvents(
   });
 };
 
+export function toSquare(w: number, h: number, keepSquare: boolean) {
+  if (!keepSquare) return { w, h };
+  const size = Math.min(Math.abs(w), Math.abs(h));
+  return { w: Math.sign(w) * size, h: Math.sign(h) * size };
+}
 
-function resizeRect(rect: Rect, mouse: Point, handle: Handle) {
+export function resizeRect(rect: Rect, mouse: Point, handle: Handle, keepSquare = false) {
+  const dx = mouse.x - rect.x;
+  const dy = mouse.y - rect.y;
+
+  const square = (w: number, h: number) => toSquare(w, h, keepSquare);
+
   switch (handle) {
-    case "left":
-      rect.width += rect.x - mouse.x;
-      rect.x = mouse.x;
-      break;
-    case "right":
-      rect.width = mouse.x - rect.x;
-      break;
-    case "top":
-      rect.height += rect.y - mouse.y;
-      rect.y = mouse.y;
-      break;
-    case "bottom":
-      rect.height = mouse.y - rect.y;
-      break;
-
-    case "top-left":
-      rect.width += rect.x - mouse.x;
-      rect.height += rect.y - mouse.y;
-      rect.x = mouse.x;
-      rect.y = mouse.y;
-      break;
-
-    case "top-right":
-      rect.height += rect.y - mouse.y;
-      rect.y = mouse.y;
-      rect.width = mouse.x - rect.x;
-      break;
-
-    case "bottom-left":
-      rect.width += rect.x - mouse.x;
-      rect.x = mouse.x;
-      rect.height = mouse.y - rect.y;
-      break;
-
-    case "bottom-right":
-      rect.width = mouse.x - rect.x;
-      rect.height = mouse.y - rect.y;
-      break;
+    case "left": {
+      const w = rect.width + (rect.x - mouse.x);
+      const { w: W } = square(w, rect.height);
+      rect.x += rect.width - W; rect.width = W; break;
+    }
+    case "right": {
+      const { w: W } = square(dx, rect.height);
+      rect.width = W; break;
+    }
+    case "top": {
+      const h = rect.height + (rect.y - mouse.y);
+      const { h: H } = square(rect.width, h);
+      rect.y += rect.height - H; rect.height = H; break;
+    }
+    case "bottom": {
+      const { h: H } = square(rect.width, dy);
+      rect.height = H; break;
+    }
+    case "top-left": {
+      const w = rect.width + (rect.x - mouse.x);
+      const h = rect.height + (rect.y - mouse.y);
+      const { w: W, h: H } = square(w, h);
+      rect.x += rect.width - W; rect.y += rect.height - H;
+      rect.width = W; rect.height = H; break;
+    }
+    case "top-right": {
+      const { w: W, h: H } = square(dx, rect.height + (rect.y - mouse.y));
+      rect.y += rect.height - H; rect.width = W; rect.height = H; break;
+    }
+    case "bottom-left": {
+      const { w: W, h: H } = square(rect.width + (rect.x - mouse.x), dy);
+      rect.x += rect.width - W; rect.width = W; rect.height = H; break;
+    }
+    case "bottom-right": {
+      const { w: W, h: H } = square(dx, dy);
+      rect.width = W; rect.height = H; break;
+    }
   }
 }

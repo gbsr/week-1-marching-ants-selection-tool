@@ -11,6 +11,7 @@ export interface SelectionState {
   dragOffset: { x: number; y: number } | null;
   resizeHandle: Handle | null;
   hoverHandle: Handle | null;
+  isShiftPressed: boolean;
 }
 
 export const state: SelectionState = {
@@ -22,4 +23,5 @@ export const state: SelectionState = {
   dragOffset: null,
   resizeHandle: null,
   hoverHandle: null,
+  isShiftPressed: false,
 };
