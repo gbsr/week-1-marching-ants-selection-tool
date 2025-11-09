@@ -1,6 +1,5 @@
-import { defineConfig } from 'vite';
-
+import { defineConfig } from 'vite'
 export default defineConfig({
-  base: '/week-1-marching-ants-selection-tool/',
+  base: './',
   build: { outDir: 'docs' }
-});
+})
