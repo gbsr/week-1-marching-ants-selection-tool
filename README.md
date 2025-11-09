@@ -1,3 +1,9 @@
+# About
+
+I’m **Anders Hofsten**, a junior frontend devoloper building 1 coding thing per week for 52 weeks.
+
+This is **Week 1**.
+
 # Marching Ants Selection Tool
 
 *Week 1 — 52 Weeks of Code Challenge*
@@ -57,7 +63,7 @@ Core interaction behavior was implemented manually to reinforce understanding of
 - Vitest (planned tests)
 - GitHub Pages for deployment
 
-## ✅ Post-Mortem (Week 1)
+## Post-Mortem (Week 1)
 
 ## **Key Concepts Practiced**
 
@@ -69,8 +75,8 @@ Core interaction behavior was implemented manually to reinforce understanding of
 * Defensive programming with early returns and guards
 * Progressive enhancement
   - layering behavior incrementally
-* Intentional mutation 
-   updating state deliberately, never implicitly
+* Intentional mutation
+  updating state deliberately, never implicitly
 * Keyboard modifiers (Shift for square constraint)
 * Assertions to catch invalid state transitions early
 * Breaking logic into small, testable helpers (geometry, normalization, math)
@@ -106,7 +112,7 @@ Core interaction behavior was implemented manually to reinforce understanding of
 - Square-constraint logic
 - Basic interaction-cycle tests
 
-## 🧪 Tests
+## Tests
 
 There are none yet.
 But the pure helper functions (geometry, math, normalize) are perfect candidates for small, targeted tests.
@@ -128,13 +134,7 @@ npm run dev
 
 ---
 
-## **✨ About**
-
-I’m **Anders Hofsten**, a junior frontend devoloper building 1 coding thing per week for 52 weeks.
-
-This is **Week 1**.
-
-## **📬 Contact / Follow**
+## **Contact / Follow**
 
 * **Portfolio**: [https://andershofsten.com]()
 * **Threads**: [https://www.threads.com/@ruido_outpost]()
