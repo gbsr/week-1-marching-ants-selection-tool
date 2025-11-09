@@ -5,6 +5,7 @@ import normalizeRect from './utils/normalizeRect'
 import resizeCanvas from './system/resizeCanvas';
 import march from './render/animateAnts'
 import config from './config'
+import { mountControls } from "./ui/controls";
 
 import './style.css';
 
@@ -19,6 +20,7 @@ let offset   = 0;
   // Set up HTML structure
 app.innerHTML = `
   <div class="canvas-wrap">
+
     <canvas id="canvas" aria-label="Selection canvas"></canvas>
   </div>
 `;
@@ -29,6 +31,7 @@ const ctx = canvas.getContext('2d')!;
 
 // register event listeners
 registerEvents(canvas, ctx, state);
+mountControls(app);
 
 
 
