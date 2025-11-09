@@ -38,7 +38,7 @@ function between(value: number, min: number, max: number, pad = 0) {
 }
 
 export function hitEdge(mouse: Point, rect: Rect): Handle {
-  const tolerance = config.edge;
+  const tolerance = config.edge + config.selectionBorderWidth / 2;
 
   const onLeft = near(mouse.x, rect.x, tolerance);
   const onRight = near(mouse.x, rect.x + rect.width, tolerance);
