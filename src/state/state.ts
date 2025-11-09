@@ -1,5 +1,6 @@
 import type { Point } from "../interface/point"
 import type { Rect } from "../interface/rect"
+import type { Handle } from "../interface/handle"
 
 export interface SelectionState {
   mode: 'idle' | 'select' | 'move' | 'resize';
@@ -7,7 +8,9 @@ export interface SelectionState {
   currentPosition: Point | null;
   endPosition: Point | null;
   finalSelection: Rect | null;
-  dragOffset: { x: number; y: number } | null
+  dragOffset: { x: number; y: number } | null;
+  resizeHandle: Handle | null;
+  hoverHandle: Handle | null;
 }
 
 export const state: SelectionState = {
@@ -17,4 +20,6 @@ export const state: SelectionState = {
   endPosition: null,
   finalSelection: null,
   dragOffset: null,
+  resizeHandle: null,
+  hoverHandle: null,
 };
