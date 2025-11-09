@@ -16,7 +16,7 @@ Built to practice interaction logic, statemachines, and most importantly TypeScr
 
 ## Demo
 
-**Live:** (link)
+**Live:** [https://gbsr.github.io/week-1-marching-ants-selection-tool/]()
 
 ---
 
@@ -54,7 +54,7 @@ Core interaction behavior was implemented manually to reinforce understanding of
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - Vite (build + dev server)
 - TypeScript
@@ -124,7 +124,7 @@ npm install
 npm run dev
 ```
 
-## **🏁 Next Steps / Stretch Ideas**
+## **Next Steps / Stretch Ideas**
 
 * Multi-selection regions (Cmd/Ctrl to add areas)
 * Feather/blur preview mask
