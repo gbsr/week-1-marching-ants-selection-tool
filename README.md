@@ -40,7 +40,7 @@ Built to practice interaction logic, statemachines, and most importantly TypeScr
 
 ## Why I built this
 
-Week 1 of my **52 Weeks of Code** challenge.
+Week 1 of my **[52 Weeks of Code](https://github.com/gbsr/52-weeks-of-code)** challenge.
 
 Goals:
 
